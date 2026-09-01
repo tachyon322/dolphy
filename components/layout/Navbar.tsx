@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useLocale } from "@/components/providers/LocaleProvider";
+import { WalletButton, WalletButtonMobile } from "@/components/wallet/WalletButton";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -14,11 +15,10 @@ export default function Navbar() {
   const { locale, setLocale, t } = useLocale();
 
   const LINKS = [
-    { label: t.nav.docs, href: "/docs" },
-    { label: t.nav.cli, href: "#cli" },
+    { label: t.nav.marketplace, href: "/marketplace" },
+    { label: t.nav.dashboard, href: "/dashboard" },
     { label: t.nav.features, href: "#features" },
-    { label: t.nav.models, href: "#models" },
-    { label: t.nav.useCases, href: "#use-cases" },
+    { label: t.nav.cli, href: "#cli" },
     { label: t.nav.infra, href: "#introduction" },
     { label: t.nav.pricing, href: "#pricing" },
     { label: t.nav.faq, href: "#faq" },
@@ -100,16 +100,27 @@ export default function Navbar() {
             </Link>
 
             <div className="ml-4 hidden items-center gap-0 max-[1199px]:hidden lg:flex">
-              {LINKS.map((l) => (
-                <a
-                  key={l.href}
-                  href={l.href}
-                  className="inline-flex h-[34px] items-center justify-center whitespace-nowrap px-3.5 py-[7px] font-sans text-[14px] font-normal leading-[1.4] tracking-[0.02em] text-[var(--text-inverse-muted)] transition-colors hover:text-[var(--text-inverse)]"
-                  style={{ fontFamily: "var(--font-sans)" }}
-                >
-                  {l.label}
-                </a>
-              ))}
+              {LINKS.map((l) =>
+                l.href.startsWith("/") ? (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    className="inline-flex h-[34px] items-center justify-center whitespace-nowrap px-3.5 py-[7px] font-sans text-[14px] font-normal leading-[1.4] tracking-[0.02em] text-[var(--text-inverse-muted)] transition-colors hover:text-[var(--text-inverse)]"
+                    style={{ fontFamily: "var(--font-sans)" }}
+                  >
+                    {l.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={l.href}
+                    href={l.href}
+                    className="inline-flex h-[34px] items-center justify-center whitespace-nowrap px-3.5 py-[7px] font-sans text-[14px] font-normal leading-[1.4] tracking-[0.02em] text-[var(--text-inverse-muted)] transition-colors hover:text-[var(--text-inverse)]"
+                    style={{ fontFamily: "var(--font-sans)" }}
+                  >
+                    {l.label}
+                  </a>
+                ),
+              )}
               <span className="mx-2 h-4 w-px shrink-0 bg-white/20" aria-hidden />
               <div className="relative inline-flex items-center">
                 <button
@@ -160,6 +171,9 @@ export default function Navbar() {
           </div>
 
           <div className="ml-auto flex items-center gap-2">
+            <div className="hidden lg:block">
+              <WalletButton />
+            </div>
             <button
               type="button"
               aria-label="Switch to dark mode"
@@ -279,17 +293,33 @@ export default function Navbar() {
                 aria-label="Mobile navigation"
               >
                 <nav className="flex flex-col gap-1">
-                  {LINKS.map((l) => (
-                    <a
-                      key={l.href}
-                      href={l.href}
-                      onClick={() => setMobileOpen(false)}
-                      className="rounded-xl px-4 py-3 font-display text-sm font-medium text-[#0d0d0d] transition-colors hover:bg-black/5"
-                      style={{ fontFamily: "var(--font-display)" }}
-                    >
-                      {l.label}
-                    </a>
-                  ))}
+                  {LINKS.map((l) =>
+                    l.href.startsWith("/") ? (
+                      <Link
+                        key={l.href}
+                        href={l.href}
+                        onClick={() => setMobileOpen(false)}
+                        className="rounded-xl px-4 py-3 font-display text-sm font-medium text-[#0d0d0d] transition-colors hover:bg-black/5"
+                        style={{ fontFamily: "var(--font-display)" }}
+                      >
+                        {l.label}
+                      </Link>
+                    ) : (
+                      <a
+                        key={l.href}
+                        href={l.href}
+                        onClick={() => setMobileOpen(false)}
+                        className="rounded-xl px-4 py-3 font-display text-sm font-medium text-[#0d0d0d] transition-colors hover:bg-black/5"
+                        style={{ fontFamily: "var(--font-display)" }}
+                      >
+                        {l.label}
+                      </a>
+                    ),
+                  )}
+                  <div className="my-2 h-px bg-black/10" />
+                  <div className="px-1 py-2">
+                    <WalletButtonMobile onDone={() => setMobileOpen(false)} />
+                  </div>
                   <div className="my-2 h-px bg-black/10" />
                   <button
                     type="button"

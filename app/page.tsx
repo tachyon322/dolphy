@@ -1,4 +1,5 @@
 import { CliSection } from "@/components/sections/CliSection";
+import { GpuMarketplace } from "@/components/sections/GpuMarketplace";
 import { Hero } from "@/components/sections/Hero";
 import { Manifest } from "@/components/sections/Manifest";
 import { Metrics } from "@/components/sections/Metrics";
@@ -10,6 +11,7 @@ export default function Home() {
       <Hero />
       <CliSection />
       <Manifest />
+      <GpuMarketplace />
       <Metrics />
     </main>
   );

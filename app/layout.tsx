@@ -3,6 +3,10 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import { LocaleProvider } from "@/components/providers/LocaleProvider";
+import { SolanaProvider } from "@/components/providers/SolanaProvider";
+import { QueryProvider } from "@/components/providers/QueryProvider";
+import { PrivyWrapper } from "@/components/providers/PrivyWrapper";
+import { Toaster } from "sonner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,10 +33,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrains.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-[var(--bg-app)]">
-        <LocaleProvider>
-          <Navbar />
-          {children}
-        </LocaleProvider>
+        <PrivyWrapper>
+          <QueryProvider>
+            <SolanaProvider>
+              <LocaleProvider>
+                <Navbar />
+                {children}
+                <Toaster richColors position="top-right" />
+              </LocaleProvider>
+            </SolanaProvider>
+          </QueryProvider>
+        </PrivyWrapper>
       </body>
     </html>
   );
