@@ -3,13 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "bun --bun next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "bun --bun next start",
     "lint": "eslint"
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.39.0",
+    "@solana-program/memo": "^0.10.0",
+    "@solana-program/system": "^0.7.0",
+    "@solana-program/token": "^0.9.0",
+    "@solana/kit": "^5.5.1",
     "@solana/spl-token": "^0.4.15",
     "@solana/wallet-adapter-base": "^0.9.27",
     "@solana/wallet-adapter-react": "^0.15.39",
@@ -31,6 +35,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bun": "^1.4.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

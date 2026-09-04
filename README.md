@@ -1,6 +1,39 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+## Dolphy web
+
+### Local dev (Bun runtime is required — DB is `bun:sqlite`, see `lib/db/index.ts`)
+
+```bash
+cp .env.example .env   # fill in RPC, treasury, Privy App ID
+bun install
+bun run dev            # = bun --bun next dev
+```
+
+### Docker (build with Node, run with Bun — don't change runtimes)
+
+- `bun --bun next build` segfaults (Bun bug, not our code) → build stage is `node:22`
+- `bun:sqlite` needs Bun → run stage is `oven/bun`, `CMD bun --bun next start`
+
+```bash
+cp .env.example .env   # fill in values
+docker compose up --build -d
+curl localhost:3000/api/gpus
+```
+
+Gotchas:
+
+- `NEXT_PUBLIC_*` are baked into the client bundle at **build** time: change via
+  environment/`--build-arg`, then rebuild. Runtime-only vars (`RUNPOD_*`,
+  `PRIVY_APP_SECRET`, `SKIP_SOLANA_VERIFY`) need no rebuild.
+- SQLite lives in the `dolphy-data` volume (`DATABASE_PATH=/app/data/dolphy.db`).
+  Single replica only.
+- Privy social logins (`Google`/`X`/...) must additionally be enabled in
+  `dashboard.privy.io → Login Methods`, otherwise `disallowed_login_method`.
+
+---
+
+## Getting Started (upstream Next.js boilerplate)
 
 First, run the development server:
 

@@ -24,6 +24,12 @@
 .DS_Store
 *.pem
 
+# sqlite
+/data/
+*.db
+*.db-wal
+*.db-shm
+
 # debug
 npm-debug.log*
 yarn-debug.log*

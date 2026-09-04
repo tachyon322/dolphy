@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getQuote, markTxUsed, isTxUsed, createRental } from "@/lib/quoteStore";
+import { getQuote, consumeQuote, markTxUsed, isTxUsed, createRental, logFailedRental, upsertUser } from "@/lib/quoteStore";
 import { getRunpodClient } from "@/lib/runpod";
 import { verifySolPayment, verifyTokenPayment, getTreasury, getTokenMint } from "@/lib/solana";
 
@@ -29,6 +29,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Quote not found or expired. Create a new quote." }, { status: 404 });
     }
 
+    // Account sighting — logged even if payment fails below.
+    upsertUser(wallet);
+
+    // Builds a failed-attempt row; caller decides whether to mark the sig used.
+    const logFail = (reason: string) =>
+      logFailedRental({
+        id: `f_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+        quoteId,
+        gpuId: quote.gpuId,
+        gpuName: quote.gpuName,
+        hours: quote.hours,
+        payWith: quote.payWith,
+        amountPaid: (quote.payWith === "SOL" ? quote.priceSolLamports : quote.priceTokenAtomic).toString(),
+        txSignature: signature,
+        wallet,
+        status: "failed",
+        failureReason: reason,
+        createdAt: Date.now(),
+        expiresAt: Date.now(),
+      });
+
     // payWith must match quote if provided
     const expectedPay = payWith ?? quote.payWith;
     if (expectedPay !== quote.payWith) {
@@ -51,7 +72,10 @@ export async function POST(req: Request) {
           minLamports,
         });
         if (!res.ok) {
-          return NextResponse.json({ error: `SOL verification failed: ${res.error}` }, { status: 402 });
+          const reason = `SOL verification failed: ${res.error}`;
+          logFail(reason);
+          markTxUsed(signature); // dead sig — block reuse
+          return NextResponse.json({ error: reason }, { status: 402 });
         }
       } else {
         const minAtomic = quote.priceTokenAtomic;
@@ -62,7 +86,10 @@ export async function POST(req: Request) {
           mint: tokenMint,
         });
         if (!res.ok) {
-          return NextResponse.json({ error: `TOKEN verification failed: ${res.error}` }, { status: 402 });
+          const reason = `TOKEN verification failed: ${res.error}`;
+          logFail(reason);
+          markTxUsed(signature); // dead sig — block reuse
+          return NextResponse.json({ error: reason }, { status: 402 });
         }
       }
     } else {
@@ -86,7 +113,9 @@ export async function POST(req: Request) {
       });
     } catch (e) {
       console.error("[rent/verify] runpod create failed", e);
-      return NextResponse.json({ error: `RunPod provision failed: ${String(e)}` }, { status: 502 });
+      const reason = `RunPod provision failed: ${String(e)}`;
+      logFail(reason); // sig stays reusable — user can retry with it
+      return NextResponse.json({ error: reason }, { status: 502 });
     }
 
     const now = Date.now();
@@ -109,9 +138,8 @@ export async function POST(req: Request) {
     };
 
     createRental(rental);
-    // consume quote is implicit via rental creation; but we should not reuse
-    // mark tx
-    markTxUsed(signature);
+    consumeQuote(quoteId); // used up — must not land in expired_quotes later
+    // mark tx is done inside createRental
 
     return NextResponse.json({
       success: true,

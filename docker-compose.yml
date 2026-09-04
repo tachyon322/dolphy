@@ -1,0 +1,31 @@
+# SQLite lives in the named volume (incl. -wal/-shm). Single replica only.
+# NEXT_PUBLIC_* are baked at BUILD time: set them in the shell/.env, then
+# `docker compose up --build`. Changing them at runtime alone does nothing.
+# Runtime-only secrets (RUNPOD_*, PRIVY_APP_SECRET, SKIP_SOLANA_VERIFY) can be
+# changed without rebuild — copy .env.example to .env and edit.
+volumes:
+  dolphy-data:
+
+services:
+  web:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_RPC_URL: ${NEXT_PUBLIC_RPC_URL:-https://api.devnet.solana.com}
+        NEXT_PUBLIC_SOLANA_NETWORK: ${NEXT_PUBLIC_SOLANA_NETWORK:-devnet}
+        NEXT_PUBLIC_TREASURY_WALLET: ${NEXT_PUBLIC_TREASURY_WALLET:-}
+        NEXT_PUBLIC_TOKEN_MINT: ${NEXT_PUBLIC_TOKEN_MINT:-4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU}
+        NEXT_PUBLIC_TOKEN_DECIMALS: ${NEXT_PUBLIC_TOKEN_DECIMALS:-6}
+        NEXT_PUBLIC_TOKEN_DISCOUNT_PERCENT: ${NEXT_PUBLIC_TOKEN_DISCOUNT_PERCENT:-15}
+        NEXT_PUBLIC_SKIP_VERIFY: ${NEXT_PUBLIC_SKIP_VERIFY:-false}
+        NEXT_PUBLIC_PRIVY_APP_ID: ${NEXT_PUBLIC_PRIVY_APP_ID:-}
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_PATH: /app/data/dolphy.db
+    ports:
+      - "3000:3000"
+    volumes:
+      - dolphy-data:/app/data
+    restart: unless-stopped

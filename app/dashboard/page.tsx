@@ -15,6 +15,7 @@ type ApiRental = {
   amountPaid: string;
   txSignature: string;
   status: string;
+  failureReason?: string;
   podId?: string;
   endpoint?: string;
   sshCommand?: string;
@@ -29,27 +30,46 @@ export default function DashboardPage() {
   const clear = useRentalsStore((s) => s.clearRentals);
   const [apiRentals, setApiRentals] = useState<ApiRental[]>([]);
   const [loading, setLoading] = useState(false);
+  const [terminating, setTerminating] = useState<string | null>(null);
 
   const wallet = address ?? "";
+
+  const reload = (w: string) => {
+    setLoading(true);
+    fetch(w ? `/api/rentals?wallet=${w}` : `/api/rentals`, { cache: "no-store" })
+      .then((r) => r.json())
+      .then((j) => setApiRentals(j.rentals ?? []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
     if (!wallet) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoading(true);
-    fetch(`/api/rentals?wallet=${wallet}`, { cache: "no-store" })
-      .then((r) => r.json())
-      .then((j) => setApiRentals(j.rentals ?? []))
-      .finally(() => setLoading(false));
+    reload(wallet);
   }, [wallet]);
 
   // Also fetch all when no wallet (show server memory for demo)
   useEffect(() => {
     if (wallet) return;
-    fetch(`/api/rentals`, { cache: "no-store" })
-      .then((r) => r.json())
-      .then((j) => setApiRentals(j.rentals ?? []))
-      .catch(() => {});
+    reload("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet, localRentals.length]);
+
+  const terminate = async (id: string) => {
+    if (!wallet || terminating) return;
+    setTerminating(id);
+    try {
+      const r = await fetch(`/api/rentals/${id}/terminate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wallet }),
+      });
+      if (r.ok) reload(wallet);
+    } finally {
+      setTerminating(null);
+    }
+  };
 
   const display = wallet ? (apiRentals.length ? apiRentals : localRentals.filter((r) => r.txSignature)) : apiRentals.length ? apiRentals : localRentals;
 
@@ -104,6 +124,7 @@ export default function DashboardPage() {
                     <th className="py-3 pr-4">{t.dashboard.tx}</th>
                     <th className="py-3 pr-4">{t.dashboard.pod}</th>
                     <th className="py-3 pr-4">{t.dashboard.created}</th>
+                    <th className="py-3 pr-4">{t.dashboard.action}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -120,13 +141,15 @@ export default function DashboardPage() {
                     const endpoint = (r as unknown as { endpoint?: string }).endpoint;
                     const ssh = (r as unknown as { sshCommand?: string }).sshCommand;
                     const createdAt = isApi ? new Date((r as ApiRental).createdAt).toLocaleString() : (r as unknown as { createdAt: string }).createdAt;
+                    const id = (r as unknown as { id: string }).id;
+                    const failureReason = (r as ApiRental).failureReason;
                     return (
-                      <tr key={(r as unknown as { id: string }).id} className="border-b border-black/[0.04] hover:bg-black/[0.02]">
+                      <tr key={id} className="border-b border-black/[0.04] hover:bg-black/[0.02]">
                         <td className="py-3 pr-4 font-medium">{gpuName}</td>
                         <td className="py-3 pr-4 font-mono text-xs">{hours}h • {payWith}</td>
                         <td className="py-3 pr-4 font-mono text-xs">{isApi ? `${Number(amount) / 1e9} lamports` : `${amount} ${payWith}`}</td>
                         <td className="py-3 pr-4">
-                          <span className={`rounded-full px-2 py-1 font-mono text-[11px] ${status === "active" ? "bg-[#00d084]/10 text-[#00a56a]" : "bg-black/5 text-black/40"}`}>{status}</span>
+                          <span title={failureReason ?? status} className={`rounded-full px-2 py-1 font-mono text-[11px] ${status === "active" ? "bg-[#00d084]/10 text-[#00a56a]" : status === "failed" ? "bg-[#ff4d4f]/10 text-[#d92d20]" : "bg-black/5 text-black/40"}`}>{status}</span>
                         </td>
                         <td className="py-3 pr-4 font-mono text-[11px] text-black/60">
                           <a href={tx.startsWith("mock") ? "#" : `https://explorer.solana.com/tx/${tx}?cluster=devnet`} target="_blank" className="underline decoration-black/20 hover:decoration-black/40">
@@ -141,6 +164,19 @@ export default function DashboardPage() {
                           )}
                         </td>
                         <td className="py-3 pr-4 font-mono text-[11px] text-black/40">{createdAt}</td>
+                        <td className="py-3 pr-4">
+                          {isApi && status === "active" && wallet ? (
+                            <button
+                              onClick={() => terminate(id)}
+                              disabled={terminating === id}
+                              className="rounded-full border border-black/10 bg-white px-3 py-1 text-xs font-medium text-[#0d0d0d] disabled:opacity-50"
+                            >
+                              {terminating === id ? t.dashboard.terminating : t.dashboard.terminate}
+                            </button>
+                          ) : (
+                            <span className="text-black/20">—</span>
+                          )}
+                        </td>
                       </tr>
                     );
                   })}
@@ -148,7 +184,7 @@ export default function DashboardPage() {
               </table>
             </div>
           )}
-          <p className="mt-4 font-mono text-[11px] text-black/30">Showing {display.length} rentals — server memory (resets on deploy) + localStorage. In prod, swap to Postgres.</p>
+          <p className="mt-4 font-mono text-[11px] text-black/30">Showing {display.length} rentals — persisted in SQLite, incl. failed attempts. Failed reason on status hover.</p>
         </div>
       </div>
     </main>

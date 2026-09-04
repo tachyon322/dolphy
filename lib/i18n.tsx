@@ -151,6 +151,9 @@ export const dictionaries = {
       pod: "Pod",
       created: "Created",
       expiresShort: "Expires",
+      action: "Action",
+      terminate: "Terminate",
+      terminating: "Terminating…",
     },
   },
   zh: {
@@ -302,6 +305,9 @@ export const dictionaries = {
       pod: "Pod",
       created: "创建",
       expiresShort: "过期",
+      action: "操作",
+      terminate: "终止",
+      terminating: "终止中…",
     },
   },
 } as const;

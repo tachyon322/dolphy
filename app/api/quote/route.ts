@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { calcPrice } from "@/lib/pricing";
 import { getGpuById } from "@/lib/mocks/gpus";
-import { createQuote } from "@/lib/quoteStore";
+import { createQuote, upsertUser } from "@/lib/quoteStore";
 
 const schema = z.object({
   gpuId: z.string().min(1),
@@ -22,6 +22,8 @@ export async function POST(req: Request) {
     const gpu = getGpuById(gpuId);
     if (!gpu) return NextResponse.json({ error: "GPU not found" }, { status: 404 });
     if (!gpu.available) return NextResponse.json({ error: "GPU not available" }, { status: 409 });
+
+    if (wallet) upsertUser(wallet);
 
     const pricing = calcPrice(gpuId, hours, payWith);
     const id = `q_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
