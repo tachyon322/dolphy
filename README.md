@@ -2,18 +2,21 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Dolphy web
 
-### Local dev (Bun runtime is required — DB is `bun:sqlite`, see `lib/db/index.ts`)
+### Local dev (Node.js >= 22.13 runtime; Bun installs the lockfile)
 
 ```bash
 cp .env.example .env   # fill in RPC, treasury, Privy App ID
 bun install
-bun run dev            # = bun --bun next dev
+npm run dev
 ```
 
-### Docker (build with Node, run with Bun — don't change runtimes)
+`lib/db/index.ts` uses Node's built-in [`node:sqlite`](https://nodejs.org/api/sqlite.html)
+module. Node 22.13 removed the `--experimental-sqlite` flag requirement.
 
-- `bun --bun next build` segfaults (Bun bug, not our code) → build stage is `node:22`
-- `bun:sqlite` needs Bun → run stage is `oven/bun`, `CMD bun --bun next start`
+### Docker (build and run with Node >= 22.13)
+
+Bun remains in the dependency stages solely to install the committed `bun.lock`.
+The builder and production image use Node, including the `node:sqlite` runtime.
 
 ```bash
 cp .env.example .env   # fill in values
@@ -43,8 +46,6 @@ npm run dev
 yarn dev
 # or
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

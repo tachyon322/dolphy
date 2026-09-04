@@ -1,4 +1,4 @@
-// Quote & rental store backed by SQLite (bun:sqlite) — server only.
+// Quote & rental store backed by SQLite (node:sqlite) — server only.
 // Same interface as the old in-memory store, so API routes stay unchanged.
 // bigint values (lamports/atomic amounts) are stored as TEXT strings.
 
@@ -206,7 +206,7 @@ export function isTxUsed(sig: string): boolean {
   const row = getDb()
     .query(`SELECT 1 FROM tx_signatures WHERE signature = ?`)
     .get(sig);
-  return row !== null;
+  return row !== undefined;
 }
 
 export function markTxUsed(sig: string) {

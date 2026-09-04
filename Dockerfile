@@ -1,7 +1,4 @@
-# dolphy/web — build with Node, run with Bun. Do not "simplify" to one runtime:
-#   - `bun --bun next build` segfaults (Bun bug, not our code) → build stage is node:22
-#   - `bun:sqlite` (lib/db/index.ts) needs the Bun runtime → run stage is oven/bun
-# package.json scripts encode the same rule: build = `next build`, start = `bun --bun next start`.
+# dolphy/web — Bun installs the lockfile; Node builds and runs the application.
 
 # ---------- deps (lockfile-accurate, fast) ----------
 FROM oven/bun:1.3.14 AS deps
@@ -10,8 +7,14 @@ COPY package.json bun.lock ./
 # Cache mount: bun downloads survive rebuilds instead of re-filling layers.
 RUN --mount=type=cache,target=/root/.bun/install/cache bun install --frozen-lockfile
 
-# ---------- build (Node!) ----------
-FROM node:22-bookworm-slim AS builder
+# Production dependencies are resolved with Bun but executed by Node.
+FROM oven/bun:1.3.14 AS production-deps
+WORKDIR /app
+COPY package.json bun.lock ./
+RUN --mount=type=cache,target=/root/.bun/install/cache bun install --production --frozen-lockfile
+
+# ---------- build (Node >= 22.13) ----------
+FROM node:22.13-bookworm-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -37,29 +40,28 @@ ENV NEXT_PUBLIC_RPC_URL=$NEXT_PUBLIC_RPC_URL \
 
 RUN ./node_modules/.bin/next build
 
-# ---------- run (Bun!) ----------
-FROM oven/bun:1.3.14 AS runner
+# ---------- run (Node >= 22.13) ----------
+FROM node:22.13-bookworm-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production \
     PORT=3000 \
     HOSTNAME=0.0.0.0 \
     DATABASE_PATH=/app/data/dolphy.db
 
-COPY --chown=bun:bun package.json bun.lock next.config.ts ./
-COPY --from=builder --chown=bun:bun /app/public ./public
-COPY --from=builder --chown=bun:bun /app/.next ./.next
-RUN --mount=type=cache,target=/root/.bun/install/cache bun install --production --frozen-lockfile
+COPY --chown=node:node package.json bun.lock next.config.ts ./
+COPY --from=production-deps --chown=node:node /app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/public ./public
+COPY --from=builder --chown=node:node /app/.next ./.next
 
 # chown only the writable dir. Never `chown -R` /app: that forks a duplicate
 # layer of the whole app (~2GB, +30min build) just to flip ownership bits.
-RUN mkdir -p /app/data && chown -R bun:bun /app/data
-USER bun
+RUN mkdir -p /app/data && chown -R node:node /app/data
+USER node
 
 VOLUME /app/data
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-  CMD bun -e "fetch('http://localhost:3000/api/gpus').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+  CMD node -e "fetch('http://localhost:3000/api/gpus').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
 
-# Same as `bun run start`: Bun runtime is required for bun:sqlite.
-CMD ["bun", "--bun", "next", "start"]
+CMD ["node", "./node_modules/next/dist/bin/next", "start"]

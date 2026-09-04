@@ -1,26 +1,48 @@
-// SQLite connection via bun:sqlite — server only, survives HMR via globalThis.
-// Runtime must be Bun; package.json scripts force it with `bun --bun next ...`.
-// `require("bun:sqlite")` is lazy so `next build` under Node never loads it
-// (route handlers are dynamic — module is evaluated only at request time).
+// SQLite connection via node:sqlite — server only, survives HMR via globalThis.
 
-import type { Database } from "bun:sqlite";
+import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 
 const DEFAULT_DB_PATH = path.join(process.cwd(), "data", "dolphy.db");
+
+type SqlValue = string | number | bigint | null;
+
+type Query<T, Params extends SqlValue[]> = {
+  get(...params: Params): T | undefined;
+  all(...params: Params): T[];
+};
+
+// Keep the small Bun-compatible interface so quoteStore's API and callers stay unchanged.
+export class Database {
+  private readonly database: DatabaseSync;
+
+  constructor(dbPath: string) {
+    this.database = new DatabaseSync(dbPath);
+  }
+
+  exec(sql: string) {
+    this.database.exec(sql);
+  }
+
+  run(sql: string, params: SqlValue[] = []) {
+    return this.database.prepare(sql).run(...params);
+  }
+
+  query<T, Params extends SqlValue[]>(sql: string): Query<T, Params> {
+    const statement = this.database.prepare(sql);
+    return {
+      get: (...params) => statement.get(...params) as T | undefined,
+      all: (...params) => statement.all(...params) as T[],
+    };
+  }
+}
 
 export function getDbPath(): string {
   return process.env.DATABASE_PATH || DEFAULT_DB_PATH;
 }
 
 function openDb(): Database {
-  if (typeof Bun === "undefined") {
-    throw new Error(
-      "Database requires the Bun runtime (bun:sqlite). Run with `bun --bun next dev` / `bun --bun next start`."
-    );
-  }
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { Database } = require("bun:sqlite") as typeof import("bun:sqlite");
   const dbPath = getDbPath();
   mkdirSync(path.dirname(dbPath), { recursive: true });
   return new Database(dbPath);
