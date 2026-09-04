@@ -35,7 +35,7 @@ export default function DashboardPage() {
   const wallet = address ?? "";
 
   const reload = (w: string) => {
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     fetch(w ? `/api/rentals?wallet=${w}` : `/api/rentals`, { cache: "no-store" })
       .then((r) => r.json())
       .then((j) => setApiRentals(j.rentals ?? []))
@@ -45,7 +45,6 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!wallet) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     reload(wallet);
   }, [wallet]);
 
@@ -53,7 +52,6 @@ export default function DashboardPage() {
   useEffect(() => {
     if (wallet) return;
     reload("");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet, localRentals.length]);
 
   const terminate = async (id: string) => {
