@@ -71,7 +71,7 @@ export function GpuMarketplace() {
           className="mt-8 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-sm font-medium text-[#0d0d0d] hover:bg-black/5"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          View full marketplace →
+          {t.marketplace.viewAll} →
         </Link>
       </div>
     </section>

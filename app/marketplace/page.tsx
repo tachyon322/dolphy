@@ -30,7 +30,7 @@ export default function MarketplacePage() {
         <div className="pointer-events-none absolute inset-0 opacity-[0.45]" style={{ background: "radial-gradient(800px 400px at 20% 0%, rgba(214,228,232,0.5) 0%, transparent 60%), radial-gradient(600px 300px at 90% 20%, rgba(232,220,200,0.4) 0%, transparent 60%)" }} />
         <div className="relative mx-auto flex w-full max-w-[1280px] flex-col">
           <Link href="/" className="inline-flex w-fit items-center gap-2 rounded-full border border-black/10 bg-white px-3 py-1.5 text-sm text-[#0d0d0d] hover:bg-black/5">
-            ← Back to home
+            ← {t.common.backHome}
           </Link>
           <p className="grid-copy mt-8 text-[11px] tracking-[0.14em] text-[#0d0d0d66]" style={{ fontFamily: "var(--font-mono)" }}>
             {t.marketplace.kicker}

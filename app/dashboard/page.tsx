@@ -52,8 +52,8 @@ export default function DashboardPage() {
   // Also fetch all when no wallet (show server memory for demo)
   useEffect(() => {
     if (wallet) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     reload("");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet, localRentals.length]);
 
   const terminate = async (id: string) => {

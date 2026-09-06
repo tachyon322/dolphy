@@ -21,11 +21,17 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "dolphy — compute, released.",
+  title: "dolphy — rent GPUs, pay in SOL",
   description:
-    "Idle GPUs wake up. Compute flows like water — guided, not forced — to where it's needed. Dolphy releases idle power onto an open market.",
+    "Bare-metal GPUs by the hour, settled on-chain. Pay with SOL or the dolphy token — your pod is up in seconds.",
   icons: {
-    icon: "/img/logo.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/img/logo.png", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
 };
 

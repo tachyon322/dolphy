@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { PixelGrid } from "./PixelGrid";
 import { CodeCard } from "./CodeCard";
@@ -103,8 +104,8 @@ export function Hero() {
           </motion.p>
 
           <motion.div variants={item} className="mt-8 flex flex-wrap items-center gap-3.5">
-            <a
-              href="/docs/quick-start"
+            <Link
+              href="/marketplace"
               aria-label={t.hero.ctaAria}
               className="group inline-flex h-[67px] w-[248px] items-center gap-4 overflow-hidden rounded-[12px] border-[0.5px] bg-[#202020] p-[3px] pr-7 transition-[gap,padding,box-shadow] duration-300 hover:gap-0 hover:p-[3px] hover:shadow-none max-[810px]:gap-0 max-[810px]:p-[3px]"
               style={{ borderColor: "#ffffff1a" }}
@@ -124,7 +125,7 @@ export function Hero() {
               >
                 {t.hero.cta}
               </span>
-            </a>
+            </Link>
           </motion.div>
         </div>
 

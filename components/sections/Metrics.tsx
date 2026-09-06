@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
 export function Metrics() {
@@ -13,10 +14,6 @@ export function Metrics() {
       className="w-full border-y border-black/[0.06] bg-[#0d0d0d] px-10 py-10 max-[1199px]:px-4 max-[809px]:px-5 max-[809px]:py-8"
     >
       <div className="mx-auto flex w-full max-w-[1360px] flex-col gap-8">
-        {/* header — Grid log */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-        </div>
-
         {/* metrics grid — pure Grid */}
         <div className="grid grid-cols-4 gap-[1px] overflow-hidden rounded-[16px] border border-white/10 bg-white/10 max-[1024px]:grid-cols-2 max-[560px]:grid-cols-1">
           {metrics.map((m, i) => (
@@ -73,13 +70,14 @@ export function Metrics() {
           >
             {t.metrics.footnote}
           </p>
-          <a
-            href="/docs"
+          <Link
+            href="/marketplace"
+            aria-label={t.metrics.log}
             className="grid-copy inline-flex items-center gap-1.5 text-[11px] tracking-[0.08em] text-white/60 underline decoration-white/20 underline-offset-4 hover:text-white hover:decoration-white/40"
             style={{ fontFamily: "var(--font-mono)" }}
           >
             {t.metrics.log}
-          </a>
+          </Link>
         </div>
       </div>
     </section>

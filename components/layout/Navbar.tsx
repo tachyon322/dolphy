@@ -9,19 +9,15 @@ import { WalletButton, WalletButtonMobile } from "@/components/wallet/WalletButt
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [devOpen, setDevOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const { locale, setLocale, t } = useLocale();
 
   const LINKS = [
-    { label: t.nav.marketplace, href: "/marketplace" },
     { label: t.nav.dashboard, href: "/dashboard" },
-    { label: t.nav.features, href: "#features" },
-    { label: t.nav.cli, href: "#cli" },
-    { label: t.nav.infra, href: "#introduction" },
-    { label: t.nav.pricing, href: "#pricing" },
-    { label: t.nav.faq, href: "#faq" },
+    { label: t.nav.marketplace, href: "/marketplace" },
+    { label: t.nav.howItWorks, href: "/how-it-works" },
+    { label: t.nav.faq, href: "/faq" },
   ];
 
   useEffect(() => {
@@ -46,7 +42,6 @@ export default function Navbar() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setMobileOpen(false);
-        setDevOpen(false);
         setLangOpen(false);
       }
     };
@@ -100,73 +95,16 @@ export default function Navbar() {
             </Link>
 
             <div className="ml-4 hidden items-center gap-0 max-[1199px]:hidden lg:flex">
-              {LINKS.map((l) =>
-                l.href.startsWith("/") ? (
-                  <Link
-                    key={l.href}
-                    href={l.href}
-                    className="inline-flex h-[34px] items-center justify-center whitespace-nowrap px-3.5 py-[7px] font-sans text-[14px] font-normal leading-[1.4] tracking-[0.02em] text-[var(--text-inverse-muted)] transition-colors hover:text-[var(--text-inverse)]"
-                    style={{ fontFamily: "var(--font-sans)" }}
-                  >
-                    {l.label}
-                  </Link>
-                ) : (
-                  <a
-                    key={l.href}
-                    href={l.href}
-                    className="inline-flex h-[34px] items-center justify-center whitespace-nowrap px-3.5 py-[7px] font-sans text-[14px] font-normal leading-[1.4] tracking-[0.02em] text-[var(--text-inverse-muted)] transition-colors hover:text-[var(--text-inverse)]"
-                    style={{ fontFamily: "var(--font-sans)" }}
-                  >
-                    {l.label}
-                  </a>
-                ),
-              )}
-              <span className="mx-2 h-4 w-px shrink-0 bg-white/20" aria-hidden />
-              <div className="relative inline-flex items-center">
-                <button
-                  type="button"
-                  className="inline-flex h-[34px] items-center gap-1.5 whitespace-nowrap px-3.5 font-sans text-[14px] font-normal tracking-[0.02em] text-[var(--text-inverse-muted)] transition-colors hover:text-[var(--text-inverse)]"
+              {LINKS.map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className="inline-flex h-[34px] items-center justify-center whitespace-nowrap px-3.5 py-[7px] font-sans text-[14px] font-normal leading-[1.4] tracking-[0.02em] text-[var(--text-inverse-muted)] transition-colors hover:text-[var(--text-inverse)]"
                   style={{ fontFamily: "var(--font-sans)" }}
-                  aria-haspopup={true}
-                  aria-expanded={devOpen}
-                  onMouseEnter={() => setDevOpen(true)}
-                  onMouseLeave={() => setDevOpen(false)}
-                  onClick={() => setDevOpen((v) => !v)}
                 >
-                  <span>{t.nav.developers}</span>
-                  <svg
-                    width={12}
-                    height={12}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="shrink-0 opacity-50 transition-transform duration-200"
-                    style={{ transform: devOpen ? "rotate(180deg)" : "none" }}
-                  >
-                    <path d="M6 9l6 6 6-6" />
-                  </svg>
-                </button>
-                {devOpen && (
-                  <div
-                    className="absolute left-0 top-full mt-2 min-w-[160px] rounded-xl border border-black/10 bg-white p-1 shadow-[0_12px_32px_rgba(0,0,0,0.12)]"
-                    onMouseEnter={() => setDevOpen(true)}
-                    onMouseLeave={() => setDevOpen(false)}
-                  >
-                    <a href="#docs" className="block rounded-lg px-3 py-2 text-sm text-[#0d0d0d] hover:bg-black/5">
-                      {t.nav.docsItem}
-                    </a>
-                    <a href="#api" className="block rounded-lg px-3 py-2 text-sm text-[#0d0d0d] hover:bg-black/5">
-                      {t.nav.api}
-                    </a>
-                    <a href="#community" className="block rounded-lg px-3 py-2 text-sm text-[#0d0d0d] hover:bg-black/5">
-                      {t.nav.community}
-                    </a>
-                  </div>
-                )}
-              </div>
+                  {l.label}
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -174,24 +112,6 @@ export default function Navbar() {
             <div className="hidden lg:block">
               <WalletButton />
             </div>
-            <button
-              type="button"
-              aria-label="Switch to dark mode"
-              className="flex h-8 w-8 items-center justify-center rounded-full border-0 bg-transparent text-[var(--ink-a60)] transition-colors hover:bg-white/10 hover:text-[var(--ink-text)] lg:hover:bg-black/5"
-            >
-              <svg
-                width={18}
-                height={18}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-              </svg>
-            </button>
 
             <div className="relative hidden lg:block" data-lang-dropdown>
               <button
@@ -218,7 +138,7 @@ export default function Navbar() {
                   className="transition-transform"
                   style={{ transform: langOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}
                 >
-                  <path d="M6 9l6 6 6-6" />
+                  <path d="M6 9l6 6-6-6" />
                 </svg>
               </button>
               {langOpen && (
@@ -293,82 +213,21 @@ export default function Navbar() {
                 aria-label="Mobile navigation"
               >
                 <nav className="flex flex-col gap-1">
-                  {LINKS.map((l) =>
-                    l.href.startsWith("/") ? (
-                      <Link
-                        key={l.href}
-                        href={l.href}
-                        onClick={() => setMobileOpen(false)}
-                        className="rounded-xl px-4 py-3 font-display text-sm font-medium text-[#0d0d0d] transition-colors hover:bg-black/5"
-                        style={{ fontFamily: "var(--font-display)" }}
-                      >
-                        {l.label}
-                      </Link>
-                    ) : (
-                      <a
-                        key={l.href}
-                        href={l.href}
-                        onClick={() => setMobileOpen(false)}
-                        className="rounded-xl px-4 py-3 font-display text-sm font-medium text-[#0d0d0d] transition-colors hover:bg-black/5"
-                        style={{ fontFamily: "var(--font-display)" }}
-                      >
-                        {l.label}
-                      </a>
-                    ),
-                  )}
+                  {LINKS.map((l) => (
+                    <Link
+                      key={l.href}
+                      href={l.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="rounded-xl px-4 py-3 font-display text-sm font-medium text-[#0d0d0d] transition-colors hover:bg-black/5"
+                      style={{ fontFamily: "var(--font-display)" }}
+                    >
+                      {l.label}
+                    </Link>
+                  ))}
                   <div className="my-2 h-px bg-black/10" />
                   <div className="px-1 py-2">
                     <WalletButtonMobile onDone={() => setMobileOpen(false)} />
                   </div>
-                  <div className="my-2 h-px bg-black/10" />
-                  <button
-                    type="button"
-                    onClick={() => setDevOpen((v) => !v)}
-                    className="flex w-full items-center justify-between rounded-xl px-4 py-3 font-display text-sm font-medium text-[#0d0d0d] hover:bg-black/5"
-                    style={{ fontFamily: "var(--font-display)" }}
-                    aria-expanded={devOpen}
-                  >
-                    {t.nav.developers}
-                    <svg
-                      width={12}
-                      height={12}
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="opacity-50 transition-transform"
-                      style={{ transform: devOpen ? "rotate(180deg)" : "none" }}
-                    >
-                      <path d="M6 9l6 6 6-6" />
-                    </svg>
-                  </button>
-                  {devOpen && (
-                    <div className="ml-4 flex flex-col gap-1 border-l border-black/10 pl-4">
-                      <a
-                        href="#docs"
-                        onClick={() => setMobileOpen(false)}
-                        className="rounded-lg px-3 py-2 text-sm text-[#0d0d0d] hover:bg-black/5"
-                      >
-                        {t.nav.docsItem}
-                      </a>
-                      <a
-                        href="#api"
-                        onClick={() => setMobileOpen(false)}
-                        className="rounded-lg px-3 py-2 text-sm text-[#0d0d0d] hover:bg-black/5"
-                      >
-                        {t.nav.api}
-                      </a>
-                      <a
-                        href="#community"
-                        onClick={() => setMobileOpen(false)}
-                        className="rounded-lg px-3 py-2 text-sm text-[#0d0d0d] hover:bg-black/5"
-                      >
-                        {t.nav.community}
-                      </a>
-                    </div>
-                  )}
                   <div className="my-2 h-px bg-black/10" />
                   <div className="flex items-center justify-between px-4 py-2">
                     <span

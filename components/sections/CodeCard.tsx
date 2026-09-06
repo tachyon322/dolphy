@@ -1,8 +1,10 @@
+import Link from "next/link";
+
 export function CodeCard() {
   return (
-    <a
-      href="/docs"
-      aria-label="View API documentation"
+    <Link
+      href="/marketplace"
+      aria-label="See live GPU quotes in the marketplace"
       className="flex w-[480px] shrink-0 flex-col overflow-hidden rounded-[16px] border-[0.5px] bg-[#ffffffb8] backdrop-blur-[18px] transition-[border-color,box-shadow] hover:border-[#0d0d0d29] max-[810px]:w-full"
       style={{ borderColor: "rgba(13,13,13,0.08)" }}
     >
@@ -11,13 +13,13 @@ export function CodeCard() {
           className="font-mono text-[11px] font-semibold tracking-[0.08em] text-[var(--ink-text)]"
           style={{ fontFamily: "var(--font-mono)" }}
         >
-          POST
+          QUOTE
         </span>
         <span
           className="min-w-0 flex-1 truncate font-mono text-[12px] text-[#0d0d0db3]"
           style={{ fontFamily: "var(--font-mono)" }}
         >
-          /v3/generation/text-to-model
+          /api/quote
         </span>
         <span
           className="inline-flex items-center gap-1.5 whitespace-nowrap font-mono text-[11px] text-[#0d0d0d80]"
@@ -36,41 +38,33 @@ export function CodeCard() {
         }}
       >
         <code>
-          <span className="tok-61f">import</span>
-          {" requests\n\n"}
-          {"url = "}
-          <span className="tok-oqg">&quot;https://openapi.dolphy.ai/v3/generation/text-to-model&quot;</span>
-          {"\nheaders = {\n    "}
-          <span className="tok-oqg">&quot;Content-Type&quot;</span>
+          {"{\n    "}
+          <span className="tok-oqg">&quot;gpu&quot;</span>
           {": "}
-          <span className="tok-oqg">&quot;application/json&quot;</span>
+          <span className="tok-oqg">&quot;H100 · 80GB&quot;</span>
           {",\n    "}
-          <span className="tok-oqg">&quot;Authorization&quot;</span>
+          <span className="tok-oqg">&quot;hours&quot;</span>
           {": "}
-          <span className="tok-oqg">{'"Bearer {api_key}"'}</span>
-          {"\n}\npayload = {\n    "}
-          <span className="tok-oqg">&quot;prompt&quot;</span>
-          {": "}
-          <span className="tok-oqg">&quot;A cat wearing a spacesuit&quot;</span>
+          <span className="tok-2m4">6</span>
           {",\n    "}
-          <span className="tok-oqg">&quot;model&quot;</span>
+          <span className="tok-oqg">&quot;price_sol&quot;</span>
           {": "}
-          <span className="tok-oqg">&quot;v3.1-20260211&quot;</span>
+          <span className="tok-oqg">&quot;0.42&quot;</span>
           {",\n    "}
-          <span className="tok-oqg">&quot;texture&quot;</span>
+          <span className="tok-oqg">&quot;price_token&quot;</span>
           {": "}
-          <span className="tok-2m4">True</span>
+          <span className="tok-oqg">&quot;3.57&quot;</span>
           {",\n    "}
-          <span className="tok-oqg">&quot;pbr&quot;</span>
+          <span className="tok-oqg">&quot;discount&quot;</span>
           {": "}
-          <span className="tok-2m4">True</span>
+          <span className="tok-oqg">&quot;15%&quot;</span>
           {",\n    "}
-          <span className="tok-oqg">&quot;texture_quality&quot;</span>
+          <span className="tok-oqg">&quot;expires_in&quot;</span>
           {": "}
-          <span className="tok-oqg">&quot;detailed&quot;</span>
+          <span className="tok-2m4">60</span>
           {"\n}"}
         </code>
       </pre>
-    </a>
+    </Link>
   );
 }
