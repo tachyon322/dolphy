@@ -45,13 +45,10 @@ ENV NODE_ENV=production \
     HOSTNAME=0.0.0.0 \
     DATABASE_PATH=/app/data/dolphy.db
 
-COPY --chown=bun:bun package.json bun.lock next.config.ts ./
 COPY --from=builder --chown=bun:bun /app/public ./public
-COPY --from=builder --chown=bun:bun /app/.next ./.next
-RUN --mount=type=cache,target=/root/.bun/install/cache bun install --production --frozen-lockfile
+COPY --from=builder --chown=bun:bun /app/.next/standalone ./
+COPY --from=builder --chown=bun:bun /app/.next/static ./.next/static
 
-# chown only the writable dir. Never `chown -R` /app: that forks a duplicate
-# layer of the whole app (~2GB, +30min build) just to flip ownership bits.
 RUN mkdir -p /app/data && chown -R bun:bun /app/data
 USER bun
 
@@ -61,5 +58,4 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD bun -e "fetch('http://localhost:3000/api/gpus').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
 
-# Same as `bun run start`: Bun runtime is required for bun:sqlite.
-CMD ["bun", "--bun", "next", "start"]
+CMD ["bun", "server.js"]
